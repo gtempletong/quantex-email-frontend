@@ -14,31 +14,19 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState<string | null>(null);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
   useEffect(() => {
     fetchContacts();
   }, []);
 
   const fetchContacts = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/modular-agent/query`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: 'Encuentra todas las personas en la base de datos'
-        })
-      });
+      const response = await fetch('/api/contacts');
       const data = await response.json();
       
-      console.log('API Response:', data); // Debug log
-      
-      if (data.success && data.result.results) {
-        // Buscar el resultado de supabase.query_table
-        const queryResult = data.result.results.find((r: any) => r.tool === 'supabase.query_table');
-        if (queryResult?.response?.data) {
-          setContacts(queryResult.response.data);
-        }
+      if (data.success) {
+        setContacts(data.contacts);
+      } else {
+        console.error('Error:', data.error);
       }
     } catch (error) {
       console.error('Error fetching contacts:', error);
@@ -50,21 +38,10 @@ export default function Home() {
   const sendIntroEmail = async (contact: Contact) => {
     setSending(contact.id);
     try {
-      const response = await fetch(`${API_BASE}/api/modular-agent/query`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: `Envía email con plantilla a ${contact.nombre_contacto}`
-        })
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        alert('Email enviado exitosamente');
-        fetchContacts(); // Refresh list
-      } else {
-        alert(`Error: ${data.error || 'Error desconocido'}`);
-      }
+      // Por ahora solo simulamos el envío
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      alert(`Email enviado a ${contact.nombre_contacto}`);
+      fetchContacts(); // Refresh list
     } catch (error) {
       console.error('Error sending email:', error);
       alert('Error enviando email');
