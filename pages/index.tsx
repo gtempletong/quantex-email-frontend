@@ -31,10 +31,13 @@ export default function Home() {
       });
       const data = await response.json();
       
+      console.log('API Response:', data); // Debug log
+      
       if (data.success && data.result.results) {
-        const personResult = data.result.results.find((r: any) => r.tool === 'supabase.find_person');
-        if (personResult?.response?.persons) {
-          setContacts(personResult.response.persons);
+        // Buscar el resultado de supabase.query_table
+        const queryResult = data.result.results.find((r: any) => r.tool === 'supabase.query_table');
+        if (queryResult?.response?.data) {
+          setContacts(queryResult.response.data);
         }
       }
     } catch (error) {
